@@ -13,7 +13,7 @@ const AdminPage = () => {
         <div className="flex gap-4 justify-between flex-wrap">
           <UserCard type="Administrateur" />
           <UserCard type="Manager" />
-          <UserCard type="Employees" />
+          <UserCard type="User" />
         </div>
         {/* MIDDLE CHARTS */}
         <div className="flex gap-4 flex-col lg:flex-row">

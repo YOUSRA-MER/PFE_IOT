@@ -2,34 +2,74 @@ import FormModal from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
-import { role, managersData } from "@/lib/data"; 
+import { role } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
 
-type Manager = {
+// Sample data - in production this would come from an API
+const usersData = [
+  {
+    id: 1,
+    matricule: "JFKXCS90",
+    name: "Sanae Omari",
+    email: "sanae.omari@gmail.com",
+    photo: "/avatar1.png",
+    phone: "0600000000",
+    department: "FIN",
+    manager: "Fouad Madani",
+    address: "123 Main St",
+  },
+  {
+    id: 2,
+    matricule: "LMTQRS45",
+    name: "Ahmed Tazi",
+    email: "ahmed.tazi@gmail.com",
+    photo: "/avatar2.png",
+    phone: "0611111111",
+    department: "IT",
+    manager: "Fouad Madani",
+    address: "456 Second Ave",
+  },
+  // Add more sample users as needed
+];
+
+type User = {
   id: number;
-  managerId: string;
+  matricule: string;
   name: string;
   email?: string;
   photo: string;
-  phone?: string;
-  department: string; // Change grade/class to department or role
+  phone: string;
+  department: string;
+  manager: string;
   address: string;
 };
 
-const columns = [
+// Define column type for better type checking
+interface Column {
+  header: string;
+  accessor: string;
+  className?: string;
+}
+
+const columns: Column[] = [
   {
     header: "Info",
     accessor: "info",
   },
   {
-    header: "Manager ID",
-    accessor: "managerId", // Change studentId to managerId
+    header: "matricule",
+    accessor: "matricule",
     className: "hidden md:table-cell",
   },
   {
     header: "Department",
-    accessor: "department", // Change grade to department
+    accessor: "department",
+    className: "hidden md:table-cell",
+  },
+  {
+    header: "Manager",
+    accessor: "manager",
     className: "hidden md:table-cell",
   },
   {
@@ -48,8 +88,8 @@ const columns = [
   },
 ];
 
-const ManagerListPage = () => {
-  const renderRow = (item: Manager) => (
+const UserListPage = () => {
+  const renderRow = (item: User) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
@@ -64,22 +104,23 @@ const ManagerListPage = () => {
         />
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-xs text-gray-500">{item.department}</p> {/* Show department instead of class */}
+          <p className="text-xs text-gray-500">{item?.email}</p>
         </div>
       </td>
-      <td className="hidden md:table-cell">{item.managerId}</td>
-      <td className="hidden md:table-cell">{item.department}</td> {/* Show department instead of grade */}
-      <td className="hidden md:table-cell">{item.phone}</td>
-      <td className="hidden md:table-cell">{item.address}</td>
+      <td className="hidden md:table-cell">{item.matricule}</td>
+      <td className="hidden md:table-cell">{item.department}</td>
+      <td className="hidden md:table-cell">{item.manager}</td>
+      <td className="hidden lg:table-cell">{item.phone}</td>
+      <td className="hidden lg:table-cell">{item.address}</td>
       <td>
         <div className="flex items-center gap-2">
-          <Link href={`/list/managers/${item.id}`}>
+          <Link href={`/list/users/${item.id}`}>
             <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
               <Image src="/view.png" alt="" width={16} height={16} />
             </button>
           </Link>
-          {role === "admin" && (
-            <FormModal table="student" type="delete" id={item.id} /> // Change student to manager
+          {(role === "admin" || role === "mod") && (
+            <FormModal table="user" type="delete" id={item.id} />
           )}
         </div>
       </td>
@@ -90,7 +131,7 @@ const ManagerListPage = () => {
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       {/* TOP */}
       <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">All Managers</h1> {/* Update title */}
+        <h1 className="hidden md:block text-lg font-semibold">All Collaborators</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
@@ -100,18 +141,18 @@ const ManagerListPage = () => {
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
-            {role === "admin" && (
-              <FormModal table="student" type="create" /> // Change student to manager
+            {(role === "admin" || role === "mod") && (
+              <FormModal table="user" type="create" />
             )}
           </div>
         </div>
       </div>
       {/* LIST */}
-      <Table columns={columns} renderRow={renderRow} data={managersData} /> {/* Use managersData */}
+      <Table columns={columns} renderRow={renderRow} data={usersData} />
       {/* PAGINATION */}
       <Pagination />
     </div>
   );
 };
 
-export default ManagerListPage;
+export default UserListPage;

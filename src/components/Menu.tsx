@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+
 const menuItems = [
   {
     title: "MENU",
@@ -13,20 +14,20 @@ const menuItems = [
       {
         icon: "/utilisateur.png",
         label: "Administrateurs",
-        href: "/list/teachers",
+        href: "/list/administrateurs",
         visible: ["admin", "teacher"],
       },
       {
         icon: "/student.png",
         label: "Managers",
-        href: "/list/students",
+        href: "/list/managers",
         visible: ["admin", "teacher"],
       },
       {
-        icon: "/parent.png",
-        label: "Employees",
-        href: "/list/parents",
-        visible: ["admin", "teacher"],
+        icon: "/announcement.png", // You might want to use a different icon
+        label: "Collaborators",
+        href: "/list/users",
+        visible: ["admin", "mod", "teacher"],
       },
       {
         icon: "/class.png",
@@ -40,16 +41,12 @@ const menuItems = [
         href: "/list/lessons",
         visible: ["admin", "teacher"],
       },
-     
-
-
       {
         icon: "/announcement.png",
         label: "Announcements",
         href: "/list/announcements",
         visible: ["admin", "teacher", "student", "parent"],
       },
-      
       {
         icon: "/calendar.png",
         label: "Work Schedule",
@@ -62,7 +59,6 @@ const menuItems = [
         href: "/list/assignments",
         visible: ["admin", "teacher", "student", "parent"],
       },
-     
     ],
   },
 ];
@@ -79,9 +75,9 @@ const Menu = () => {
             <span className="hidden lg:block">{item.label}</span>
             </Link>
           ))}
+        </div>
+      ))}
     </div>
-  ))}
-  </div>
   )
 }
 
