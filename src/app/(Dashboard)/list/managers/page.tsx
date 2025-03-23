@@ -6,7 +6,7 @@ import { role } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
 
-// Sample data - in production this would come from an API
+// Données d'exemple - en production, ces données proviendraient d'une API
 const managersData = [
   {
     id: 1,
@@ -30,7 +30,7 @@ const managersData = [
     teamSize: 8,
     address: "456 Lead Ave",
   },
-  // Add more sample managers as needed
+  // Ajoutez plus de gestionnaires si nécessaire
 ];
 
 type Manager = {
@@ -45,7 +45,7 @@ type Manager = {
   address: string;
 };
 
-// Define column type for better type checking
+// Définition du type de colonne pour une meilleure vérification de type
 interface Column {
   header: string;
   accessor: string;
@@ -54,7 +54,7 @@ interface Column {
 
 const columns: Column[] = [
   {
-    header: "Info",
+    header: "Information",
     accessor: "info",
   },
   {
@@ -63,22 +63,22 @@ const columns: Column[] = [
     className: "hidden md:table-cell",
   },
   {
-    header: "Department",
+    header: "Département",
     accessor: "department",
     className: "hidden md:table-cell",
   },
   {
-    header: "Team Size",
+    header: "Taille d'Équipe",
     accessor: "teamSize",
     className: "hidden md:table-cell",
   },
   {
-    header: "Phone",
+    header: "Téléphone",
     accessor: "phone",
     className: "hidden lg:table-cell",
   },
   {
-    header: "Address",
+    header: "Adresse",
     accessor: "address",
     className: "hidden lg:table-cell",
   },
@@ -129,9 +129,9 @@ const ManagerListPage = () => {
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-      {/* TOP */}
+      {/* HAUT */}
       <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">All Managers</h1>
+        <h1 className="hidden md:block text-lg font-semibold">Tous les Gestionnaires</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
@@ -147,7 +147,7 @@ const ManagerListPage = () => {
           </div>
         </div>
       </div>
-      {/* LIST */}
+      {/* LISTE */}
       <Table columns={columns} renderRow={renderRow} data={managersData} />
       {/* PAGINATION */}
       <Pagination />

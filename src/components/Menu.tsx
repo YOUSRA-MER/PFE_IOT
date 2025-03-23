@@ -31,8 +31,8 @@ const menuItems = [
       },
       {
         icon: "/class.png",
-        label: "Attendance",
-        href: "/list/classes",
+        label: "pointeuses",
+        href: "/list/pointeuses",
         visible: ["admin", "teacher"],
       },
       {

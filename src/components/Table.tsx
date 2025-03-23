@@ -1,12 +1,10 @@
-const Table = ({
-  columns,
-  renderRow,
-  data,
-}: {
+interface TableProps {
   columns: { header: string; accessor: string; className?: string }[];
-  renderRow: (item: any) => React.ReactNode;
   data: any[];
-}) => {
+  renderRow?: (item: any) => React.ReactNode; // Make renderRow optional
+}
+
+const Table = ({ columns, renderRow, data }: TableProps) => {
   return (
     <table className="w-full mt-4">
       <thead>
@@ -16,7 +14,9 @@ const Table = ({
           ))}
         </tr>
       </thead>
-      <tbody>{data.map((item) => renderRow(item))}</tbody>
+      <tbody>
+        {data.map((item) => (renderRow ? renderRow(item) : null))} {/* Handle optional renderRow */}
+      </tbody>
     </table>
   );
 };

@@ -4,11 +4,18 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useState } from "react";
 
-// Define proper FormProps interface
+// Define proper interfaces
 interface FormProps {
   type: "create" | "update";
   data?: any;
   onClose: () => void;
+}
+
+interface PointeuseFormProps {
+  pointeuse: any | null;
+  onSubmitSuccess: () => void;
+  onCancel: () => void;
+  type: "create" | "update"; // Ensure type prop consistency
 }
 
 // USE LAZY LOADING
@@ -21,9 +28,12 @@ const UserForm = dynamic(() => import("./forms/UserForm"), {
 const ManagerForm = dynamic(() => import("./forms/ManagerForm"), {
   loading: () => <h1>Loading...</h1>,
 });
+const PointeuseForm = dynamic(() => import("./forms/PointeuseForm"), {
+  loading: () => <h1>Loading...</h1>,
+});
 
 // Define table types
-type TableType = 
+type TableType =
   | "admin"
   | "administrateur"
   | "user"
@@ -36,7 +46,8 @@ type TableType =
   | "result"
   | "attendance"
   | "event"
-  | "announcement";
+  | "announcement"
+  | "pointeuse";
 
 type ModalType = "create" | "update" | "delete";
 
@@ -45,9 +56,11 @@ interface FormModalProps {
   type: ModalType;
   data?: any;
   id?: number;
+  onClose?: () => void;
+  onSubmit?: () => void; // Added this line
 }
 
-const FormModal = ({ table, type, data, id }: FormModalProps) => {
+const FormModal = ({ table, type, data, id, onClose, onSubmit }: FormModalProps) => {
   const size = type === "create" ? "w-8 h-8" : "w-7 h-7";
   const bgColor =
     type === "create"
@@ -57,9 +70,10 @@ const FormModal = ({ table, type, data, id }: FormModalProps) => {
       : "bg-lamaPurple";
 
   const [open, setOpen] = useState(false);
-  
+
   const handleClose = () => {
     setOpen(false);
+    if (onClose) onClose();
   };
 
   const Form = () => {
@@ -70,7 +84,7 @@ const FormModal = ({ table, type, data, id }: FormModalProps) => {
           <span className="text-center font-medium">
             All data will be lost. Are you sure you want to delete this {entityName}?
           </span>
-          <button 
+          <button
             type="button"
             className="bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center"
             onClick={handleClose}
@@ -80,13 +94,21 @@ const FormModal = ({ table, type, data, id }: FormModalProps) => {
         </form>
       );
     } else if (type === "create" || type === "update") {
-      // Handle the form components directly instead of through a mapping
       if (table === "admin" || table === "administrateur") {
         return <AdminForm type={type} data={data} onClose={handleClose} />;
       } else if (table === "user") {
         return <UserForm type={type} data={data} onClose={handleClose} />;
       } else if (table === "manager") {
         return <ManagerForm type={type} data={data} onClose={handleClose} />;
+      } else if (table === "pointeuse") {
+        return (
+          <PointeuseForm
+            pointeuse={type === "update" ? data : null}
+            onSubmitSuccess={handleClose}
+            onCancel={handleClose}
+            type={type}
+          />
+        );
       } else {
         return <div>Form not found for {table}!</div>;
       }
@@ -95,7 +117,6 @@ const FormModal = ({ table, type, data, id }: FormModalProps) => {
     }
   };
 
-  // Helper function to get user-friendly entity names
   const getEntityDisplayName = (table: string) => {
     const displayNames: { [key: string]: string } = {
       admin: "administrator",
@@ -110,21 +131,23 @@ const FormModal = ({ table, type, data, id }: FormModalProps) => {
       result: "result",
       attendance: "attendance",
       event: "event",
-      announcement: "announcement"
+      announcement: "announcement",
+      pointeuse: "pointeuse",
     };
-      
     return displayNames[table] || table;
   };
 
   return (
     <>
-      <button
-        className={`${size} flex items-center justify-center rounded-full ${bgColor}`}
-        onClick={() => setOpen(true)}
-      >
-        <Image src={`/${type}.png`} alt="" width={16} height={16} />
-      </button>
-      {open && (
+      {!onClose && (
+        <button
+          className={`${size} flex items-center justify-center rounded-full ${bgColor}`}
+          onClick={() => setOpen(true)}
+        >
+          <Image src={`/${type}.png`} alt="" width={16} height={16} />
+        </button>
+      )}
+      {(open || onClose) && (
         <div className="w-screen h-screen fixed left-0 top-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
           <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]">
             <Form />

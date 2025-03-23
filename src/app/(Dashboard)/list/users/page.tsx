@@ -6,7 +6,7 @@ import { role } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
 
-// Sample data - in production this would come from an API
+// Données d'exemple - en production, ces données proviendraient d'une API
 const usersData = [
   {
     id: 1,
@@ -30,7 +30,7 @@ const usersData = [
     manager: "Fouad Madani",
     address: "456 Second Ave",
   },
-  // Add more sample users as needed
+  // Ajoutez plus d'utilisateurs si nécessaire
 ];
 
 type User = {
@@ -45,7 +45,7 @@ type User = {
   address: string;
 };
 
-// Define column type for better type checking
+// Définition du type de colonne pour une meilleure vérification de type
 interface Column {
   header: string;
   accessor: string;
@@ -54,31 +54,31 @@ interface Column {
 
 const columns: Column[] = [
   {
-    header: "Info",
+    header: "Information",
     accessor: "info",
   },
   {
-    header: "matricule",
+    header: "Matricule",
     accessor: "matricule",
     className: "hidden md:table-cell",
   },
   {
-    header: "Department",
+    header: "Département",
     accessor: "department",
     className: "hidden md:table-cell",
   },
   {
-    header: "Manager",
+    header: "Responsable",
     accessor: "manager",
     className: "hidden md:table-cell",
   },
   {
-    header: "Phone",
+    header: "Téléphone",
     accessor: "phone",
     className: "hidden lg:table-cell",
   },
   {
-    header: "Address",
+    header: "Adresse",
     accessor: "address",
     className: "hidden lg:table-cell",
   },
@@ -129,9 +129,9 @@ const UserListPage = () => {
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-      {/* TOP */}
+      {/* HAUT */}
       <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">All Collaborators</h1>
+        <h1 className="hidden md:block text-lg font-semibold">Tous les Collaborateurs</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
@@ -147,7 +147,7 @@ const UserListPage = () => {
           </div>
         </div>
       </div>
-      {/* LIST */}
+      {/* LISTE */}
       <Table columns={columns} renderRow={renderRow} data={usersData} />
       {/* PAGINATION */}
       <Pagination />
