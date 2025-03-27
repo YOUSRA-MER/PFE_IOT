@@ -15,8 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className="dark"> {/* Add className="dark" to enable dark mode globally */}
+      <body className={`${inter.className} bg-white dark:bg-gray-900`}>{children}</body>
     </html>
   );
 }

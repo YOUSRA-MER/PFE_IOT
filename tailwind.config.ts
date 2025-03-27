@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: 'class', // Enable dark mode using class strategy
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -19,8 +20,8 @@ const config: Config = {
         lamaPurple: "#B39BCB",     // Elegant muted purple
         lamaPurpleLight: "#EAB8E4", // Soft pastel purple
         lamaYellow: "#F6E58D",     // Warm golden yellow
-        lamaYellowLight: "#F9E79F"  // Soft pastel yellow
-      }
+        lamaYellowLight: "#F9E79F"  // Soft pastel yellow
+      }
     },
   },
   plugins: [],

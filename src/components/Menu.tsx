@@ -1,84 +1,97 @@
 import Link from "next/link";
-import Image from "next/image";
+import { 
+  Home, 
+  UserCog, 
+  Users,  
+  Briefcase, 
+  Building,  // For departments
+  QrCode,    // For badge readers
+  Calendar,  // For time tracking
+  LogOut,     // For authentication
+} from "lucide-react";
 
 const menuItems = [
   {
-    title: "MENU",
+    title: "MENU PRINCIPAL",
     items: [
       {
-        icon: "/home.png",
-        label: "Dashboard",
+        icon: <Home className="h-5 w-5" />,
+        label: "Tableau de Bord",
         href: "/admin",
-        visible: ["admin", "teacher", "student", "parent"],
+        visible: ["admin", "mod"],
       },
       {
-        icon: "/utilisateur.png",
+        icon: <UserCog className="h-5 w-5" />,
         label: "Administrateurs",
         href: "/list/administrateurs",
-        visible: ["admin", "teacher"],
+        visible: ["admin"],
       },
       {
-        icon: "/student.png",
+        icon: <Briefcase className="h-5 w-5" />,
         label: "Managers",
         href: "/list/managers",
-        visible: ["admin", "teacher"],
+        visible: ["admin"],
       },
       {
-        icon: "/announcement.png", // You might want to use a different icon
-        label: "Collaborators",
+        icon: <Users className="h-5 w-5" />,
+        label: "Collaborateurs",
         href: "/list/users",
-        visible: ["admin", "mod", "teacher"],
+        visible: ["admin", "mod"],
       },
       {
-        icon: "/class.png",
-        label: "pointeuses",
+        icon: <Building className="h-5 w-5" />,
+        label: "Départements",
+        href: "/list/departments",
+        visible: ["admin"],
+      },
+      {
+        icon: <QrCode className="h-5 w-5" />,
+        label: "Pointeuses",
         href: "/list/pointeuses",
-        visible: ["admin", "teacher"],
+        visible: ["admin"],
       },
       {
-        icon: "/lesson.png",
-        label: "Reports",
-        href: "/list/lessons",
-        visible: ["admin", "teacher"],
+        icon: <Calendar className="h-5 w-5" />,
+        label: "Pointages",
+        href: "/list/pointage",
+        visible: ["admin", "mod"],
       },
       {
-        icon: "/announcement.png",
-        label: "Announcements",
-        href: "/list/announcements",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: "/calendar.png",
-        label: "Work Schedule",
-        href: "/list/events",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: "/settings.png",
-        label: "Settings",
-        href: "/list/assignments",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
+        icon: <LogOut className="h-5 w-5" />,
+        label: "Déconnexion",
+        href: "#",
+        visible: ["admin", "mod", "user"],
+        onClick: () => {
+          localStorage.removeItem("token"); // Supprimez le token
+          window.location.href = "/auth/login"; // Redirigez
+        },
+      }
     ],
   },
 ];
 
 const Menu = () => {
   return (
-    <div className='mt-4 text-sm'>
-      {menuItems.map(i=>(
-        <div className='flex flex-col gap-2' key={i.title}>
-          <span className="hidden lg:block text-gray-400 font-light my-4 ">{i.title}</span>
-          {i.items.map(item=>(
-            <Link href={item.href} key={item.label} className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2">
-            <Image src={item.icon} alt="" width={20} height={20}/>
-            <span className="hidden lg:block">{item.label}</span>
+    <div className="mt-4 text-sm">
+      {menuItems.map((section) => (
+        <div className="flex flex-col gap-2" key={section.title}>
+          <span className="hidden lg:block text-gray-400 font-light my-4">
+            {section.title}
+          </span>
+          {section.items.map((item) => (
+            <Link
+              href={item.href}
+              key={item.label}
+              className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 hover:text-gray-700 dark:hover:text-gray-300"
+            >
+              {item.icon}
+              <span className="hidden lg:block">{item.label}</span>
             </Link>
           ))}
         </div>
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default Menu
+export default Menu;

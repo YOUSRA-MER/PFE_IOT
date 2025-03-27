@@ -142,15 +142,15 @@ const AdminForm = ({
     defaultValue = "" 
   }: CustomInputFieldProps) => (
     <div className="flex flex-col gap-1 w-full">
-      <label className="text-sm text-gray-600 font-medium">{label}</label>
+      <label className="text-sm text-gray-600 dark:text-gray-300 font-medium">{label}</label>
       <input
         type={type}
-        className="border border-gray-300 rounded-md p-2.5 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+        className="border border-gray-300 dark:border-gray-600 rounded-md p-2.5 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
         {...register(name)}
         defaultValue={defaultValue}
       />
       {errors[name] && (
-        <p className="text-xs text-red-500 mt-1">
+        <p className="text-xs text-red-500 dark:text-red-400 mt-1">
           {errors[name]?.message?.toString()}
         </p>
       )}
@@ -159,13 +159,13 @@ const AdminForm = ({
 
   return (
     <div className="overflow-y-auto max-h-[80vh]">
-      <form className="flex flex-col gap-5 bg-white p-6 rounded-md shadow-sm w-full max-w-4xl mx-auto" onSubmit={onSubmit}>
-        <h2 className="text-lg font-medium text-gray-800 border-b pb-3">
+      <form className="flex flex-col gap-5 bg-white dark:bg-gray-800 p-6 rounded-md shadow-sm w-full max-w-4xl mx-auto" onSubmit={onSubmit}>
+        <h2 className="text-lg font-medium text-gray-800 dark:text-white border-b pb-3">
           {type === "create" ? "Créer un nouvel administrateur" : "Modifier l'administrateur"}
         </h2>
         
-        <div className="border-l-4 border-blue-500 pl-3 bg-blue-50 py-2 px-2">
-          <span className="text-sm text-gray-700 font-medium">
+        <div className="border-l-4 border-blue-500 pl-3 bg-blue-50 dark:bg-blue-900 py-2 px-2">
+          <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
             Informations d'authentification
           </span>
         </div>
@@ -189,8 +189,8 @@ const AdminForm = ({
           />
         </div>
         
-        <div className="border-l-4 border-green-500 pl-3 bg-green-50 py-2 px-2 mt-2">
-          <span className="text-sm text-gray-700 font-medium">
+        <div className="border-l-4 border-green-500 pl-3 bg-green-50 dark:bg-green-900 py-2 px-2 mt-2">
+          <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
             Informations personnelles
           </span>
         </div>
@@ -218,17 +218,17 @@ const AdminForm = ({
           />
         </div>
         
-        <div className="border-l-4 border-yellow-500 pl-3 bg-yellow-50 py-2 px-2 mt-2">
-          <span className="text-sm text-gray-700 font-medium">
+        <div className="border-l-4 border-yellow-500 pl-3 bg-yellow-50 dark:bg-yellow-900 py-2 px-2 mt-2">
+          <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
             Informations administratives
           </span>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-600 font-medium">Département</label>
+            <label className="text-sm text-gray-600 dark:text-gray-300 font-medium">Département</label>
             <select
-              className="border border-gray-300 rounded-md p-2.5 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="border border-gray-300 dark:border-gray-600 rounded-md p-2.5 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               {...register("departmentCode")}
               defaultValue={data?.department?.code}
             >
@@ -240,16 +240,16 @@ const AdminForm = ({
               <option value="D005">Marketing</option>
             </select>
             {errors.departmentCode?.message && (
-              <p className="text-xs text-red-500 mt-1">
+              <p className="text-xs text-red-500 dark:text-red-400 mt-1">
                 {errors.departmentCode.message.toString()}
               </p>
             )}
           </div>
           
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-600 font-medium">Rôle</label>
+            <label className="text-sm text-gray-600 dark:text-gray-300 font-medium">Rôle</label>
             <select
-              className="border border-gray-300 rounded-md p-2.5 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="border border-gray-300 dark:border-gray-600 rounded-md p-2.5 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               {...register("role")}
               defaultValue={data?.role || "admin"}
             >
@@ -257,19 +257,19 @@ const AdminForm = ({
               <option value="mod">Modérateur</option>
             </select>
             {errors.role?.message && (
-              <p className="text-xs text-red-500 mt-1">
+              <p className="text-xs text-red-500 dark:text-red-400 mt-1">
                 {errors.role.message.toString()}
               </p>
             )}
           </div>
           
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-600 font-medium" htmlFor="img">
+            <label className="text-sm text-gray-600 dark:text-gray-300 font-medium" htmlFor="img">
               Photo de profil
             </label>
             <div className="flex items-center">
               <label
-                className="cursor-pointer bg-gray-100 text-gray-700 py-2.5 px-3 rounded-md text-sm hover:bg-gray-200 transition-colors border border-gray-300"
+                className="cursor-pointer bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2.5 px-3 rounded-md text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors border border-gray-300 dark:border-gray-600"
                 htmlFor="img"
               >
                 Télécharger une photo
@@ -277,7 +277,7 @@ const AdminForm = ({
               <input type="file" id="img" {...register("img")} className="hidden" />
             </div>
             {errors.img?.message && (
-              <p className="text-xs text-red-500 mt-1">
+              <p className="text-xs text-red-500 dark:text-red-400 mt-1">
                 {errors.img.message.toString()}
               </p>
             )}
@@ -285,22 +285,22 @@ const AdminForm = ({
         </div>
         
         {submitError && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-md text-sm mt-3">
+          <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-200 p-3 rounded-md text-sm mt-3">
             {submitError}
           </div>
         )}
         
         {submitSuccess && (
-          <div className="bg-green-50 border border-green-200 text-green-700 p-3 rounded-md text-sm mt-3">
+          <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 text-green-700 dark:text-green-200 p-3 rounded-md text-sm mt-3">
             {submitSuccess}
           </div>
         )}
         
-        <div className="sticky bottom-0 bg-white border-t py-3 flex justify-end gap-3 mt-4">
+        <div className="sticky bottom-0 bg-white dark:bg-gray-800 border-t py-3 flex justify-end gap-3 mt-4">
           <button 
             type="button" 
             onClick={onClose}
-            className="border border-gray-300 text-gray-600 px-4 py-2 rounded-md text-sm hover:bg-gray-50"
+            className="border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-200 px-4 py-2 rounded-md text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             Annuler
           </button>

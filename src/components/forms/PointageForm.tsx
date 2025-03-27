@@ -8,25 +8,27 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 
 // Define schema for validation
-const pointeuseSchema = z.object({
-  code: z.string().min(1, { message: "Le code est obligatoire" }),
-  name: z.string().min(1, { message: "Le nom est obligatoire" }),
-  description: z.string().optional(),
-  badgeuseType: z.enum(["IN", "OUT"], { message: "Le type doit être IN ou OUT" })
+const pointageSchema = z.object({
+  matricule: z.string().min(1, { message: "Le matricule est obligatoire" }),
+  date: z.string().min(1, { message: "La date est obligatoire" }),
+  heure: z.string().min(1, { message: "L'heure est obligatoire" }),
+  pointeuseId: z.number().min(1, { message: "L'ID de la pointeuse est obligatoire" }),
+  type: z.enum(["IN", "OUT"], { message: "Le type doit être IN ou OUT" })
 });
 
-type PointeuseData = z.infer<typeof pointeuseSchema>;
+type PointageData = z.infer<typeof pointageSchema>;
 
-interface Pointeuse {
+interface Pointage {
   id?: string;
-  code: string;
-  name: string;
-  description?: string;
-  badgeuseType: "IN" | "OUT";
+  matricule: string;
+  date: string;
+  heure: string;
+  pointeuseId: number;
+  type: "IN" | "OUT";
 }
 
-interface PointeuseFormProps {
-  pointeuse: Pointeuse | null;
+interface PointageFormProps {
+  pointage: Pointage | null;
   onSubmitSuccess: () => void;
   onCancel: () => void;
   type: "create" | "update";
@@ -34,7 +36,7 @@ interface PointeuseFormProps {
 
 interface CustomInputFieldProps {
   label: string;
-  name: keyof PointeuseData;
+  name: keyof PointageData;
   register: any;
   error?: any;
   type?: string;
@@ -42,12 +44,12 @@ interface CustomInputFieldProps {
   required?: boolean;
 }
 
-export default function PointeuseForm({ 
-  pointeuse, 
+export default function PointageForm({ 
+  pointage, 
   onSubmitSuccess, 
   onCancel,
   type
-}: PointeuseFormProps) {
+}: PointageFormProps) {
   const isEditMode = type === "update";
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -57,17 +59,18 @@ export default function PointeuseForm({
     register, 
     handleSubmit, 
     formState: { errors } 
-  } = useForm<PointeuseData>({
-    resolver: zodResolver(pointeuseSchema),
+  } = useForm<PointageData>({
+    resolver: zodResolver(pointageSchema),
     defaultValues: {
-      code: pointeuse?.code || "",
-      name: pointeuse?.name || "",
-      description: pointeuse?.description || "",
-      badgeuseType: pointeuse?.badgeuseType || "IN"
+      matricule: pointage?.matricule || "",
+      date: pointage?.date || "",
+      heure: pointage?.heure || "",
+      pointeuseId: pointage?.pointeuseId || 1,
+      type: pointage?.type || "IN"
     }
   });
 
-  const onSubmit: SubmitHandler<PointeuseData> = async (data) => {
+  const onSubmit: SubmitHandler<PointageData> = async (data) => {
     setLoading(true);
     setError("");
     setSuccess("");
@@ -75,28 +78,28 @@ export default function PointeuseForm({
     try {
       const token = localStorage.getItem("token");
       
-      if (isEditMode && pointeuse?.id) {
-        await axios.put(`http://localhost:8085/api/badgeuse/update/${pointeuse.id}`, data, {
+      if (isEditMode && pointage?.id) {
+        await axios.put(`http://localhost:8085/api/pointage/update/${pointage.id}`, data, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setSuccess("La pointeuse a été mise à jour avec succès");
+        setSuccess("Le pointage a été mis à jour avec succès");
       } else {
-        await axios.post("http://localhost:8085/api/badgeuse/save", data, {
+        await axios.post("http://localhost:8085/api/pointage/save", data, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setSuccess("La pointeuse a été créée avec succès");
+        setSuccess("Le pointage a été créé avec succès");
       }
       
       setTimeout(() => {
         onSubmitSuccess();
       }, 1500);
     } catch (error) {
-      console.error("Erreur lors de l'enregistrement de la pointeuse:", error);
-      setError("Une erreur s'est produite lors de l'enregistrement de la pointeuse");
+      console.error("Erreur lors de l'enregistrement du pointage:", error);
+      setError("Une erreur s'est produite lors de l'enregistrement du pointage");
     } finally {
       setLoading(false);
     }
@@ -135,46 +138,54 @@ export default function PointeuseForm({
     <div className="overflow-y-auto max-h-[80vh]">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 bg-white dark:bg-gray-800 p-6 rounded-md shadow-sm w-full max-w-4xl mx-auto">
         <h2 className="text-lg font-medium text-gray-800 dark:text-white border-b pb-3">
-          {isEditMode ? "Modifier la pointeuse" : "Créer une nouvelle pointeuse"}
+          {isEditMode ? "Modifier le pointage" : "Créer un nouveau pointage"}
         </h2>
         
         <div className="border-l-4 border-blue-500 pl-3 bg-blue-50 dark:bg-blue-900 py-2 px-2">
           <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
-            Informations de la pointeuse
+            Informations du pointage
           </span>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <CustomInputField
-            label="Code"
-            name="code"
+            label="Matricule"
+            name="matricule"
             register={register}
-            error={errors.code}
-            placeholder="AQ195"
+            error={errors.matricule}
+            placeholder="D6M3N093"
             required
           />
           
           <CustomInputField
-            label="Nom"
-            name="name"
+            label="Date"
+            name="date"
             register={register}
-            error={errors.name}
-            placeholder="Main Entrance Badge Reader"
+            error={errors.date}
+            type="date"
             required
           />
         </div>
         
-        <div className="grid grid-cols-1 gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-600 dark:text-gray-300 font-medium" htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              rows={3}
-              className="border border-gray-300 dark:border-gray-600 rounded-md p-2.5 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Description détaillée de la pointeuse..."
-              {...register("description")}
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CustomInputField
+            label="Heure"
+            name="heure"
+            register={register}
+            error={errors.heure}
+            type="time"
+            required
+          />
+          
+          <CustomInputField
+            label="ID Pointeuse"
+            name="pointeuseId"
+            register={register}
+            error={errors.pointeuseId}
+            type="number"
+            placeholder="1"
+            required
+          />
         </div>
         
         <div className="border-l-4 border-green-500 pl-3 bg-green-50 dark:bg-green-900 py-2 px-2 mt-2">
@@ -185,25 +196,39 @@ export default function PointeuseForm({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-600 dark:text-gray-300 font-medium" htmlFor="badgeuseType">
-              Type de pointeuse <span className="text-red-500">*</span>
+            <label className="text-sm text-gray-600 dark:text-gray-300 font-medium" htmlFor="type">
+              Type de pointage <span className="text-red-500">*</span>
             </label>
             <select
-              id="badgeuseType"
-              className={`border ${errors.badgeuseType ? 'border-red-300 bg-red-50 dark:bg-red-900' : 'border-gray-300 dark:border-gray-600'} rounded-md p-2.5 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white`}
-              {...register("badgeuseType")}
+              id="type"
+              className={`border ${errors.type ? 'border-red-300 bg-red-50 dark:bg-red-900' : 'border-gray-300 dark:border-gray-600'} rounded-md p-2.5 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white`}
+              {...register("type")}
             >
               <option value="IN">Entrée (IN)</option>
               <option value="OUT">Sortie (OUT)</option>
             </select>
-            {errors.badgeuseType && (
+            {errors.type && (
               <p className="text-xs text-red-500 dark:text-red-400 mt-1 flex items-center">
                 <AlertCircle className="inline h-3 w-3 mr-1" />
-                {errors.badgeuseType.message?.toString()}
+                {errors.type.message?.toString()}
               </p>
             )}
           </div>
         </div>
+        
+        {success && (
+          <div className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 p-3 rounded-md flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4" />
+            <span className="text-sm">{success}</span>
+          </div>
+        )}
+        
+        {error && (
+          <div className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 p-3 rounded-md flex items-center gap-2">
+            <AlertCircle className="h-4 w-4" />
+            <span className="text-sm">{error}</span>
+          </div>
+        )}
         
         <div className="sticky bottom-0 bg-white dark:bg-gray-800 border-t py-3 flex justify-end gap-3 mt-4">
           <button

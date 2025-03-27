@@ -1,4 +1,5 @@
 "use client";
+
 import Image from "next/image";
 import {
   BarChart,
@@ -11,6 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useEffect, useState } from "react";
 
 const data = [
   {
@@ -41,29 +43,73 @@ const data = [
 ];
 
 const AttendanceChart = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Listen for dark mode changes
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === "class") {
+          const isDark = document.documentElement.classList.contains("dark");
+          setIsDarkMode(isDark);
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true, // Listen for attribute changes
+    });
+
+    return () => observer.disconnect(); // Cleanup observer
+  }, []);
+
   return (
-    <div className="bg-white rounded-lg p-4 h-full">
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 h-full">
       <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold">Attendance</h1>
-        <Image src="/moreDark.png" alt="" width={20} height={20} />
+        <h1 className="text-lg font-semibold dark:text-white">Attendance</h1>
+        <Image
+          src="/moreDark.png"
+          alt=""
+          width={20}
+          height={20}
+          className="dark:invert"
+        />
       </div>
       <ResponsiveContainer width="100%" height="90%">
         <BarChart width={500} height={300} data={data} barSize={20}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ddd" />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            vertical={false}
+            stroke={isDarkMode ? "#374151" : "#ddd"} // Dark mode: gray-700, Light mode: gray-200
+            strokeOpacity={isDarkMode ? 0.2 : 1} // Adjust opacity for dark mode
+          />
           <XAxis
             dataKey="name"
             axisLine={false}
-            tick={{ fill: "#d1d5db" }}
+            tick={{ fill: isDarkMode ? "#f3f4f6" : "#374151" }} // Dark mode: gray-100, Light mode: gray-700
             tickLine={false}
           />
-          <YAxis axisLine={false} tick={{ fill: "#d1d5db" }} tickLine={false} />
+          <YAxis
+            axisLine={false}
+            tick={{ fill: isDarkMode ? "#f3f4f6" : "#374151" }} // Dark mode: gray-100, Light mode: gray-700
+            tickLine={false}
+          />
           <Tooltip
-            contentStyle={{ borderRadius: "10px", borderColor: "lightgray" }}
+            contentStyle={{
+              borderRadius: "10px",
+              borderColor: isDarkMode ? "#374151" : "lightgray", // Dark mode: gray-700, Light mode: lightgray
+              backgroundColor: isDarkMode ? "#1f2937" : "#ffffff", // Dark mode: gray-800, Light mode: white
+              color: isDarkMode ? "#f3f4f6" : "#374151", // Dark mode: gray-100, Light mode: gray-700
+            }}
           />
           <Legend
             align="left"
             verticalAlign="top"
-            wrapperStyle={{ paddingTop: "20px", paddingBottom: "40px" }}
+            wrapperStyle={{
+              paddingTop: "20px",
+              paddingBottom: "40px",
+              color: isDarkMode ? "#f3f4f6" : "#374151", // Dark mode: gray-100, Light mode: gray-700
+            }}
           />
           <Bar
             dataKey="present"

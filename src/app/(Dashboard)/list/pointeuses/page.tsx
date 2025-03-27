@@ -107,8 +107,8 @@ export default function PointeusesPage() {
       cell: (row: Pointeuse) => (
         <span className={`py-1 px-3 rounded-full text-xs font-medium ${
           row.badgeuseType === "IN" 
-            ? "bg-green-100 text-green-800" 
-            : "bg-red-100 text-red-800"
+            ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100" 
+            : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
         }`}>
           {row.badgeuseType === "IN" ? "Entrée" : "Sortie"}
         </span>
@@ -138,11 +138,11 @@ export default function PointeusesPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Liste des Pointeuses</h1>
-            <p className="text-gray-500 mt-1">Gérez les appareils de pointage de l'entreprise</p>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Liste des Pointeuses</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Gérez les appareils de pointage de l'entreprise</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <div className="relative flex-1 sm:flex-initial">
@@ -152,7 +152,7 @@ export default function PointeusesPage() {
               <input
                 type="text"
                 placeholder="Rechercher..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-600 bg-white dark:bg-gray-800 dark:text-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -170,18 +170,18 @@ export default function PointeusesPage() {
         {loading ? (
           <div className="flex justify-center items-center py-8">
             <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
-            <p className="ml-2 text-gray-600">Chargement des pointeuses...</p>
+            <p className="ml-2 text-gray-600 dark:text-gray-400">Chargement des pointeuses...</p>
           </div>
         ) : (
           <>
             {filteredPointeuses.length === 0 ? (
-              <div className="bg-gray-50 rounded-md p-8 text-center border border-dashed border-gray-300">
-                <p className="text-gray-500">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-8 text-center border border-dashed border-gray-300 dark:border-gray-700">
+                <p className="text-gray-500 dark:text-gray-400">
                   {searchTerm ? "Aucune pointeuse correspondant à votre recherche." : "Aucune pointeuse trouvée. Commencez par en ajouter une."}
                 </p>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-lg border border-gray-200">
+              <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
                 <Table 
                   columns={columns} 
                   data={filteredPointeuses}
