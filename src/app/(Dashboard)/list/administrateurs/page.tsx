@@ -2,13 +2,51 @@ import FormModal from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
-import { role, adminsData } from "@/lib/data";
+import { role } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
+import { Eye, Filter, Plus, ArrowUpDown } from "lucide-react";
+
+// Temporary data matching your API structure
+const adminsData = [
+  {
+    id: 1,
+    matricule: "TclJ6XLK",
+    name: "Kenza Squalli",
+    email: "kenza.squalli@gmail.com",
+    photo: "/avatar1.png",
+    phone: "0600000000",
+    department: "FIN",
+    role: "Admin",
+    address: "123 Admin Street"
+  },
+  {
+    id: 2,
+    matricule: "A2D9M4N6",
+    name: "Admin Two",
+    email: "admin2@company.com",
+    photo: "/avatar2.png",
+    phone: "0611111111",
+    department: "HR",
+    role: "Admin",
+    address: "456 Management Ave"
+  },
+  {
+    id: 3,
+    matricule: "B5C8E2F1",
+    name: "Admin Three",
+    email: "admin3@company.com",
+    photo: "/avatar3.png",
+    phone: "0622222222",
+    department: "IT",
+    role: "Admin",
+    address: "789 Executive Blvd"
+  }
+];
 
 type Admin = {
   id: number;
-  matricule: string; // Changé adminId en matricule pour correspondre à l'API
+  matricule: string;
   name: string;
   email?: string;
   photo: string;
@@ -24,7 +62,7 @@ const columns = [
     accessor: "info",
   },
   {
-    header: "Matricule", // Changé "Admin ID" en "Matricule"
+    header: "Matricule",
     accessor: "matricule",
     className: "hidden md:table-cell",
   },
@@ -82,7 +120,7 @@ const AdminListPage = () => {
         <div className="flex items-center gap-2">
           <Link href={`/list/admins/${item.id}`}>
             <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky dark:bg-gray-700">
-              <Image src="/view.png" alt="" width={16} height={16} className="dark:invert" />
+              <Eye className="w-4 h-4 dark:text-white" />
             </button>
           </Link>
           {role === "admin" && (
@@ -95,27 +133,28 @@ const AdminListPage = () => {
 
   return (
     <div className="bg-white dark:bg-gray-900 p-4 rounded-md flex-1 m-4 mt-0">
-      {/* HAUT */}
       <div className="flex items-center justify-between">
         <h1 className="hidden md:block text-lg font-semibold dark:text-white">Tous les Administrateurs</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow dark:bg-gray-700">
-              <Image src="/filter.png" alt="" width={14} height={14} className="dark:invert" />
+              <Filter className="w-3.5 h-3.5 dark:text-white" />
             </button>
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow dark:bg-gray-700">
-              <Image src="/sort.png" alt="" width={14} height={14} className="dark:invert" />
+              <ArrowUpDown className="w-3.5 h-3.5 dark:text-white" />
             </button>
             {role === "admin" && (
-              <FormModal table="admin" type="create" />
+              <FormModal 
+                table="admin" 
+                type="create" 
+                icon={<Plus className="w-4 h-4 dark:text-white" />} 
+              />
             )}
           </div>
         </div>
       </div>
-      {/* LISTE */}
       <Table columns={columns} renderRow={renderRow} data={adminsData} />
-      {/* PAGINATION */}
       <Pagination />
     </div>
   );

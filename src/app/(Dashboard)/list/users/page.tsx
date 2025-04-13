@@ -5,6 +5,7 @@ import TableSearch from "@/components/TableSearch";
 import { role } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
+import { Eye, Filter, Plus, ArrowUpDown } from "lucide-react";
 
 // Données d'exemple - en production, ces données proviendraient d'une API
 const usersData = [
@@ -116,7 +117,7 @@ const UserListPage = () => {
         <div className="flex items-center gap-2">
           <Link href={`/list/users/${item.id}`}>
             <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky dark:bg-gray-700">
-              <Image src="/view.png" alt="" width={16} height={16} className="dark:invert" />
+              <Eye className="w-4 h-4 dark:text-white" />
             </button>
           </Link>
           {(role === "admin" || role === "mod") && (
@@ -136,13 +137,17 @@ const UserListPage = () => {
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow dark:bg-gray-700">
-              <Image src="/filter.png" alt="" width={14} height={14} className="dark:invert" />
+              <Filter className="w-3.5 h-3.5 dark:text-white" />
             </button>
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow dark:bg-gray-700">
-              <Image src="/sort.png" alt="" width={14} height={14} className="dark:invert" />
+              <ArrowUpDown className="w-3.5 h-3.5 dark:text-white" />
             </button>
             {(role === "admin" || role === "mod") && (
-              <FormModal table="user" type="create" />
+              <FormModal 
+                table="user" 
+                type="create" 
+                icon={<Plus className="w-4 h-4 dark:text-white" />} 
+              />
             )}
           </div>
         </div>

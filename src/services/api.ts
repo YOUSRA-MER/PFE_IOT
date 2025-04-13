@@ -1,23 +1,61 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8085/api/auth';
+// Base API URL for all requests
+const API_URL = 'http://localhost:8085/api';
+const AUTH_URL = `${API_URL}/auth`;
 
+// Define types for auth responses
+interface AuthResponse {
+  id: number;
+  username: string;
+  email: string;
+  roles: string[];
+  tokenType: string;
+  accessToken: string;
+}
+
+interface LoginData {
+  username: string;
+  password: string;
+}
+
+interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+  role: string[];
+  departmentDTO: {
+    name?: string;
+    code: string;
+  };
+  manager?: string;
+}
+
+// Auth service for public endpoints
 export const apiService = {
-  async login(loginData: { username: string, password: string }) {
+  // Login function - handles user authentication
+  async login(loginData: LoginData): Promise<AuthResponse> {
     try {
-      const response = await axios.post(`${API_URL}/signin`, loginData);
-      // Vous pouvez également ajouter un intercepteur ici pour stocker les tokens
+      const response = await axios.post<AuthResponse>(`${AUTH_URL}/signin`, loginData);
+      
+      // Store authentication data in localStorage
+      localStorage.setItem('token', response.data.accessToken);
+      localStorage.setItem('userRole', JSON.stringify(response.data.roles));
+      localStorage.setItem('userId', response.data.id.toString());
+      localStorage.setItem('username', response.data.username);
+      localStorage.setItem('email', response.data.email);
+      
       return response.data;
     } catch (error) {
       console.error("Login error:", error);
       throw error;
     }
   },
-    
-  // Ajout de fonctions supplémentaires pour les autres endpoints
-  async register(userData: any, profileSecret: string) {
+  
+  // Register function - creates new user accounts
+  async register(userData: RegisterData, profileSecret: string) {
     try {
-      const response = await axios.post(`${API_URL}/signup`, userData, {
+      const response = await axios.post(`${AUTH_URL}/signup`, userData, {
         headers: {
           'profile-secret': profileSecret
         }
@@ -28,8 +66,8 @@ export const apiService = {
       throw error;
     }
   },
-    
-  // Fonction utilitaire pour obtenir les headers d'authentification
+  
+  // Helper function to generate auth headers
   getAuthHeader() {
     const token = localStorage.getItem('token');
     if (token) {
@@ -38,17 +76,19 @@ export const apiService = {
       return {};
     }
   },
-
-  // Added methods for authentication checking
+  
+  // Check if user is authenticated
   isAuthenticated() {
     return !!localStorage.getItem('token');
   },
-
+  
+  // Get user roles
   getUserRoles() {
     const rolesStr = localStorage.getItem('userRole');
     return rolesStr ? JSON.parse(rolesStr) : [];
   },
-
+  
+  // Logout user and clear storage
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
@@ -56,15 +96,27 @@ export const apiService = {
     localStorage.removeItem('username');
     localStorage.removeItem('email');
     window.location.href = '/login';
+  },
+  
+  // Check if user has admin role
+  isAdmin() {
+    const roles = this.getUserRoles();
+    return roles.includes('ROLE_ADMIN');
+  },
+  
+  // Check if user has moderator role
+  isModerator() {
+    const roles = this.getUserRoles();
+    return roles.includes('ROLE_MODERATOR') || roles.includes('ROLE_MOD');
   }
 };
 
-// Créer une instance axios avec les headers d'authentification pour les requêtes protégées
+// Create an axios instance with auth header for protected API calls
 export const protectedApi = axios.create({
-  baseURL: 'http://localhost:8085/api'
+  baseURL: API_URL
 });
 
-// Ajouter un intercepteur pour injecter le token automatiquement
+// Add request interceptor to inject auth token
 protectedApi.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -74,6 +126,19 @@ protectedApi.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle common errors
+protectedApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid - redirect to login
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
     return Promise.reject(error);
   }
 );

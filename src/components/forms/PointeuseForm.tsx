@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import axios from "axios";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { protectedApi } from "@/services/api";
+import { useRouter } from "next/navigation";
 
-// Define schema for validation
+// Updated schema for validation
 const pointeuseSchema = z.object({
   code: z.string().min(1, { message: "Le code est obligatoire" }),
   name: z.string().min(1, { message: "Le nom est obligatoire" }),
@@ -18,10 +19,11 @@ const pointeuseSchema = z.object({
 type PointeuseData = z.infer<typeof pointeuseSchema>;
 
 interface Pointeuse {
-  id?: string;
+  id?: number;
   code: string;
   name: string;
   description?: string;
+  matricule?: string; // Added to match backend model
   badgeuseType: "IN" | "OUT";
 }
 
@@ -48,6 +50,7 @@ export default function PointeuseForm({
   onCancel,
   type
 }: PointeuseFormProps) {
+  const router = useRouter();
   const isEditMode = type === "update";
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -73,30 +76,32 @@ export default function PointeuseForm({
     setSuccess("");
     
     try {
-      const token = localStorage.getItem("token");
-      
       if (isEditMode && pointeuse?.id) {
-        await axios.put(`http://localhost:8085/api/badgeuse/update/${pointeuse.id}`, data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        // Update existing pointeuse
+        await protectedApi.put(`/badgeuse/update/${pointeuse.id}`, data);
         setSuccess("La pointeuse a été mise à jour avec succès");
       } else {
-        await axios.post("http://localhost:8085/api/badgeuse/save", data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        // Create new pointeuse
+        await protectedApi.post("/badgeuse/save", data);
         setSuccess("La pointeuse a été créée avec succès");
       }
       
       setTimeout(() => {
         onSubmitSuccess();
       }, 1500);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur lors de l'enregistrement de la pointeuse:", error);
-      setError("Une erreur s'est produite lors de l'enregistrement de la pointeuse");
+      
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        // Handle unauthorized or forbidden access
+        localStorage.removeItem('token');
+        router.push('/login');
+      } else if (error.response?.data?.message) {
+        // Display server-provided error message if available
+        setError(error.response.data.message);
+      } else {
+        setError("Une erreur s'est produite lors de l'enregistrement de la pointeuse");
+      }
     } finally {
       setLoading(false);
     }
@@ -137,6 +142,20 @@ export default function PointeuseForm({
         <h2 className="text-lg font-medium text-gray-800 dark:text-white border-b pb-3">
           {isEditMode ? "Modifier la pointeuse" : "Créer une nouvelle pointeuse"}
         </h2>
+        
+        {success && (
+          <div className="bg-green-50 dark:bg-green-900 border-l-4 border-green-500 p-4 flex items-start">
+            <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400 mr-2 mt-0.5" />
+            <p className="text-sm text-green-700 dark:text-green-200">{success}</p>
+          </div>
+        )}
+        
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900 border-l-4 border-red-500 p-4 flex items-start">
+            <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400 mr-2 mt-0.5" />
+            <p className="text-sm text-red-700 dark:text-red-200">{error}</p>
+          </div>
+        )}
         
         <div className="border-l-4 border-blue-500 pl-3 bg-blue-50 dark:bg-blue-900 py-2 px-2">
           <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">

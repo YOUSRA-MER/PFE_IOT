@@ -1,18 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { protectedApi } from "@/services/api";
 import FormModal from "../../../../components/FormModal";
 import Table from "../../../../components/Table";
-import { Search, PlusCircle, Loader2 } from "lucide-react";
+import { Search, PlusCircle, Loader2, AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-// Define interfaces for data
+// Updated interface to match backend model
 interface Pointeuse {
   id: number;
   code: string;
   name: string;
   description: string;
-  badgeuseType: string;
+  matricule?: string; // Added to match backend model
+  badgeuseType: "IN" | "OUT";
 }
 
 interface TableColumn {
@@ -22,16 +24,25 @@ interface TableColumn {
 }
 
 export default function PointeusesPage() {
+  const router = useRouter();
   const [pointeuses, setPointeuses] = useState<Pointeuse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedPointeuse, setSelectedPointeuse] = useState<Pointeuse | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredPointeuses, setFilteredPointeuses] = useState<Pointeuse[]>([]);
 
   useEffect(() => {
+    // Check if user is authenticated before fetching data
+    const isAuthenticated = localStorage.getItem('token');
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+    
     fetchPointeuses();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -39,7 +50,7 @@ export default function PointeusesPage() {
         p => 
           p.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
           p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.description.toLowerCase().includes(searchTerm.toLowerCase())
+          p.description?.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredPointeuses(filtered);
     } else {
@@ -49,17 +60,23 @@ export default function PointeusesPage() {
 
   const fetchPointeuses = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get<Pointeuse[]>("http://localhost:8085/api/badgeuse/all", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      setLoading(true);
+      setError(null);
+      // Fetch data from the backend API
+      const response = await protectedApi.get<Pointeuse[]>("/badgeuse/all");
       setPointeuses(response.data);
       setFilteredPointeuses(response.data);
-      setLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur lors de la récupération des pointeuses:", error);
+      
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        // Handle unauthorized or forbidden access
+        localStorage.removeItem('token');
+        router.push('/login');
+      } else {
+        setError("Impossible de charger les pointeuses. Veuillez réessayer plus tard.");
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -78,15 +95,18 @@ export default function PointeusesPage() {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cette pointeuse?")) {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
-        await axios.delete(`http://localhost:8085/api/badgeuse/delete/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        // Delete the pointeuse using the correct endpoint
+        await protectedApi.delete(`/badgeuse/delete/${id}`);
         fetchPointeuses();
-      } catch (error) {
+      } catch (error: any) {
         console.error("Erreur lors de la suppression de la pointeuse:", error);
+        
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          localStorage.removeItem('token');
+          router.push('/login');
+        } else {
+          setError("Erreur lors de la suppression de la pointeuse. Veuillez réessayer.");
+        }
         setLoading(false);
       }
     }
@@ -166,6 +186,13 @@ export default function PointeusesPage() {
             </button>
           </div>
         </div>
+
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900 border-l-4 border-red-500 rounded flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400 mr-2" />
+            <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+          </div>
+        )}
 
         {loading ? (
           <div className="flex justify-center items-center py-8">

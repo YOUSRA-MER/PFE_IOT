@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { X, Plus, Pencil, Trash2 } from "lucide-react";
 
 // Define proper interfaces
 interface FormProps {
@@ -57,22 +57,48 @@ interface FormModalProps {
   id?: number;
   onClose?: () => void;
   onSubmit?: () => void;
+  icon?: React.ReactNode;
 }
 
-const FormModal = ({ table, type, data, id, onClose, onSubmit }: FormModalProps) => {
+const FormModal = ({ table, type, data, id, onClose, onSubmit, icon }: FormModalProps) => {
   const size = type === "create" ? "w-8 h-8" : "w-7 h-7";
   const bgColor =
     type === "create"
-      ? "bg-lamaYellow"
+      ? "bg-lamaYellow hover:bg-lamaYellow/90 dark:bg-yellow-600 dark:hover:bg-yellow-700"
       : type === "update"
-      ? "bg-lamaSky"
-      : "bg-lamaPurple";
+      ? "bg-lamaSky hover:bg-lamaSky/90 dark:bg-blue-600 dark:hover:bg-blue-700"
+      : "bg-lamaPurple hover:bg-lamaPurple/90 dark:bg-purple-600 dark:hover:bg-purple-700";
 
   const [open, setOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (open || onClose) {
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+      }, 10);
+      
+      const handleEsc = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          handleClose();
+        }
+      };
+      
+      window.addEventListener('keydown', handleEsc);
+      
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('keydown', handleEsc);
+      };
+    }
+  }, [open, onClose]);
 
   const handleClose = () => {
-    setOpen(false);
-    if (onClose) onClose();
+    setIsVisible(false);
+    setTimeout(() => {
+      setOpen(false);
+      if (onClose) onClose();
+    }, 300);
   };
 
   const Form = () => {
@@ -85,7 +111,7 @@ const FormModal = ({ table, type, data, id, onClose, onSubmit }: FormModalProps)
           </span>
           <button
             type="button"
-            className="bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center"
+            className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center transition-colors"
             onClick={handleClose}
           >
             Delete
@@ -105,7 +131,7 @@ const FormModal = ({ table, type, data, id, onClose, onSubmit }: FormModalProps)
           return (
             <PointeuseForm
               pointeuse={type === "update" ? data : null}
-              onSubmitSuccess={handleClose}
+              onSubmitSuccess={onSubmit || handleClose}
               onCancel={handleClose}
               type={type}
             />
@@ -114,7 +140,7 @@ const FormModal = ({ table, type, data, id, onClose, onSubmit }: FormModalProps)
           return (
             <DepartmentForm
               department={type === "update" ? data : null}
-              onSubmitSuccess={handleClose}
+              onSubmitSuccess={onSubmit || handleClose}
               onCancel={handleClose}
               type={type}
             />
@@ -123,7 +149,7 @@ const FormModal = ({ table, type, data, id, onClose, onSubmit }: FormModalProps)
           return (
             <PointageForm
               pointage={type === "update" ? data : null}
-              onSubmitSuccess={handleClose}
+              onSubmitSuccess={onSubmit || handleClose}
               onCancel={handleClose}
               type={type}
             />
@@ -152,21 +178,45 @@ const FormModal = ({ table, type, data, id, onClose, onSubmit }: FormModalProps)
     <>
       {!onClose && (
         <button
-          className={`${size} flex items-center justify-center rounded-full ${bgColor}`}
+          className={`${size} flex items-center justify-center rounded-full ${bgColor} transition-colors`}
           onClick={() => setOpen(true)}
         >
-          <Image src={`/${type}.png`} alt="" width={16} height={16} className="dark:invert" />
+          {icon || (
+            <span className="text-white dark:text-white">
+              {type === "create" ? <Plus className="w-4 h-4" /> : 
+               type === "update" ? <Pencil className="w-4 h-4" /> : 
+               <Trash2 className="w-4 h-4" />}
+            </span>
+          )}
         </button>
       )}
       {(open || onClose) && (
-        <div className="w-screen h-screen fixed left-0 top-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]">
-            <Form />
-            <div
-              className="absolute top-4 right-4 cursor-pointer"
-              onClick={handleClose}
-            >
-              <Image src="/close.png" alt="" width={14} height={14} className="dark:invert" />
+        <div 
+          className={`fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 transition-opacity duration-300 ${
+            isVisible ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={handleClose}
+        >
+          <div 
+            className={`bg-white dark:bg-gray-800 rounded-lg shadow-xl relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] transition-transform duration-300 ${
+              isVisible ? 'translate-y-0' : 'translate-y-8'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
+              <h2 className="text-lg font-medium text-gray-800 dark:text-white">
+                {type === "create" ? "Ajouter" : type === "update" ? "Modifier" : "Supprimer"} {getEntityDisplayName(table)}
+              </h2>
+              <button
+                onClick={handleClose}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="p-4">
+              <Form />
             </div>
           </div>
         </div>
